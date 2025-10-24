@@ -23,12 +23,12 @@ spec:
       # Init container to download kubehcl binary
       initContainers:
         - name: download-tools
-          image: alpine:3.8
+          image: alpine:3.22
           command: [sh, -c]
           args:
-            - wget -qO- https://github.com/yanir75/kubehcl/releases/download/v0.3.4/kubehcl_0.3.4_linux_amd64.tar.gz |
+            - wget -qO- https://github.com/yanir75/kubehcl/releases/download/v0.3.4/kubehcl_0.3.4_arm.apk |
               tar -xvzf - &&
-              mv kubehcl /custom-tools/
+              mv usr/bin/kubehcl /custom-tools/
           volumeMounts:
             - mountPath: /custom-tools
               name: custom-tools
@@ -37,7 +37,7 @@ spec:
       containers:
           
         - name: kubehcl
-          image: ubuntu
+          image: alpine:3.22
           command: [/var/run/argocd/argocd-cmp-server]
           securityContext:
             runAsNonRoot: true
