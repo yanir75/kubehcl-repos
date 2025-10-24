@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tab
+  namespace: argocd
+spec:
+  project: default
+  
+  source:
+    repoURL: https://github.com/yanir75/kubehcl-repos.git
+    path: example
+    plugin:
+      # If the plugin is defined as a sidecar and name is not passed, the plugin will be automatically matched with the
+      # Application according to the plugin's discovery rules.
+      name: kubehcl
+  destination: 
+    server: https://kubernetes.default.svc # URL of the target Kubernetes API server
+    namespace: row # Namespace where the application will be deployed
+
+

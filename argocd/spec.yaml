@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-repo-server
+  namespace: argocd
+spec:
+  template:
+    spec:
+      # Volumes shared among containers
+      volumes:
+        - name: kubehcl
+          configMap:
+            name: kubehcl
+        - name: cmp-tmp
+          emptyDir: {}
+        - name: custom-tools
+          emptyDir: {}
+        - name: var-files
+          emptyDir: {}
+        - name: plugins
+          emptyDir: {}
+
+      # Init container to download kubehcl binary
+      initContainers:
+        - name: download-tools
+          image: alpine:3.8
+          command: [sh, -c]
+          args:
+            - wget -qO- https://github.com/yanir75/kubehcl/releases/download/v0.3.4/kubehcl_0.3.4_linux_amd64.tar.gz |
+              tar -xvzf - &&
+              mv kubehcl /custom-tools/
+          volumeMounts:
+            - mountPath: /custom-tools
+              name: custom-tools
+
+      # Main containers
+      containers:
+          
+        - name: kubehcl
+          image: ubuntu
+          command: [/var/run/argocd/argocd-cmp-server]
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+          volumeMounts:
+            - mountPath: /var/run/argocd
+              name: var-files
+            - mountPath: /home/argocd/cmp-server/plugins
+              name: plugins
+            - mountPath: /home/argocd/cmp-server/config/plugin.yaml
+              subPath: plugin.yaml
+              name: kubehcl
+            - mountPath: /tmp
+              name: cmp-tmp
+            - mountPath: /usr/local/bin/kubehcl
+              name: custom-tools
+              subPath: kubehcl
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+

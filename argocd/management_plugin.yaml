@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubehcl
+  namespace: argocd
+data:
+  plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: kubehcl
+    spec:
+      init:
+        command: [sh]
+        args:
+          - -c
+          - |
+            # Init step (optional)
+            echo "Initializing kubehcl plugin"
+      generate:
+        command: [sh, -c]
+        args:
+          - |
+            if [ ! -z "$KUBEHCL_VALUES" ]; then
+              echo "\n" >> kubehcl.tfvars
+              echo "$KUBEHCL_VALUES" >> kubehcl.tfvars
+            fi
+            kubehcl template . --no-color
+      discover:
+        # Auto-match any repo that contains index.hclvars in the folder
+        fileName: "index.hclvars"
+      parameters:
+        static:
+        - name: KUBEHCL_VALUES
+          title: hcl values
