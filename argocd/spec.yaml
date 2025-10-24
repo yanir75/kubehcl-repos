@@ -37,7 +37,7 @@ spec:
       containers:
           
         - name: kubehcl
-          image: ubuntu
+          image: ubuntu:bionic
           command: [/var/run/argocd/argocd-cmp-server]
           securityContext:
             runAsNonRoot: true
