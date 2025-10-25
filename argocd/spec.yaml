@@ -37,7 +37,7 @@ spec:
       containers:
           
         - name: kubehcl
-          image: ubuntu
+          image: alpine:3.22
           command: [/var/run/argocd/argocd-cmp-server]
           securityContext:
             runAsNonRoot: true
